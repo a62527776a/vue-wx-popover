@@ -72,7 +72,7 @@ export default {
       let wxTip = this.$createWxPopover({
         $props: {
           actions: this.actions,
-          dom: event.target
+          targetDom: event.target
         }
       }).$on('select', e => {
           window.alert('点击下标' + e)

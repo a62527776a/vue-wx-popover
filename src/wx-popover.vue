@@ -14,7 +14,6 @@ export default {
       x: 0,
       warpperX: 0,
       y: 0,
-      width: 0,
       height: 36,
       translateX: '100%',
       showTipTimer: null,
@@ -29,7 +28,7 @@ export default {
       },
       required: true
     },
-    dom: null,
+    targetDom: null,
     showDelay: {
       type: Number,
       default: 0
@@ -53,20 +52,40 @@ export default {
     }
   },
   methods: {
-    showTip: function () {
-      if (!this.isDOM(this.dom)) throw new Error('dom属性必须为DOM节点')
-      if (this.showTipTimer) return
-      this.showTipTimer = setTimeout(() => {
-        let wxTipRect = this.$refs['wx-popover-wrapper'].getBoundingClientRect()
-        let domRect = this.dom.getBoundingClientRect()
-        let offsetHeight = (domRect.height - wxTipRect.height) / 2
-        this.x = domRect.left - wxTipRect.width + this.offsetX
-        this.warpperX = wxTipRect.width
-        this.width = wxTipRect.width
-        this.y = domRect.top + offsetHeight
-        this.translateX = '0%'
-        clearTimeout(this.showTipTimer)
-      }, this.showDelay)
+    /**
+     * @method computedRect 根据目标DOM节点位置信息以及popover的DOM节点信息 计算popover最终需要呈现的屏幕中位置
+     * @return { Object } {
+     *    
+     * }
+     */
+    computedRect: function (targetDomRect, popoverRect) {
+      let offsetHeight = (targetDomRect.height - popoverRect.height) / 2
+      return {
+        x: targetDomRect.left - popoverRect.width + this.offsetX,
+        y: targetDomRect.top + offsetHeight,
+        warpperX: popoverRect.width,
+        translateX: '0%'
+      }
+    },
+    /**
+     * @method showPopover showDelay ms之后展示Popover
+     * @return { Promise<Boolean> }
+     */
+    showPopover: function () {
+      new Promise((resolve) => {
+        if (!this.isDOM(this.targetDom)) {
+          resolve(false)
+          throw new Error('dom属性必须为DOM节点')
+        }
+        if (this.showTipTimer) resolve(false)
+        this.showTipTimer = setTimeout(() => {
+          let popoverRect = this.$refs['wx-popover-wrapper'].getBoundingClientRect()
+          let targetDomRect = this.targetDom.getBoundingClientRect()
+          Object.assign(this, this.computedRect(targetDomRect, popoverRect))
+          clearTimeout(this.showTipTimer)
+          resolve(true)
+        }, this.showDelay)
+      })
     },
     clickoutside: function () {
       this.translateX = '100%'
@@ -85,7 +104,7 @@ export default {
     }
   },
   mounted () {
-    this.showTip()
+    this.showPopover()
     console.log(this)
   }
 }

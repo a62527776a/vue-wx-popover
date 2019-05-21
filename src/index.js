@@ -4,7 +4,7 @@ import CreateAPI from 'vue-create-api'
 // 验证是否为dom节点
 let validate = (binding) => {
   if (typeof binding.value !== 'function') {
-    console.warn('[Vue-WxTip:] provided expression', binding.expression, 'is not a function.')
+    console.warn('[Vue-WxPopover:] provided expression', binding.expression, 'is not a function.')
     return false
   }
   return true
@@ -31,6 +31,16 @@ let unBindEvent = (el) => {
   document.body.removeEventListener('click', el.__clickOutside__, true)
 }
 
+// 将传入的options合并到组件props中
+let mergeOptions = (Options, Component) => {
+  let _opt = {}
+  Object.keys(Options).map(key => {
+    _opt[key] = { default: Options[key] }
+  })
+  Component.props = Object.assign(Component.props, _opt)
+  return Component
+}
+
 const install = (Vue, options) => {
   Vue.use(CreateAPI)
   Vue.directive('click-outside', {
@@ -38,13 +48,7 @@ const install = (Vue, options) => {
     unbind: unBindEvent
   })
   Vue.createAPI((() => {
-    if (options) {
-      let _opt = {}
-      Object.keys(options).map(key => {
-        _opt[key] = { default: options[key] }
-      })
-      wxPopover.props = Object.assign(wxPopover.props, _opt)
-    }
+    if (options) return mergeOptions(options, wxPopover)
     return wxPopover
   })(), true)
 }
