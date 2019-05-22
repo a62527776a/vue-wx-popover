@@ -1,8 +1,17 @@
 import wxPopover from './wx-popover.vue'
 import CreateAPI from 'vue-create-api'
 
+interface Binding {
+  value: Function
+  expression: string
+}
+
+interface TargetEl extends HTMLElement {
+  __clickOutside__: EventListenerOrEventListenerObject
+}
+
 // 验证是否为dom节点
-let validate = (binding) => {
+let validate = (binding: Binding): Boolean => {
   if (typeof binding.value !== 'function') {
     console.warn('[Vue-WxPopover:] provided expression', binding.expression, 'is not a function.')
     return false
@@ -11,14 +20,16 @@ let validate = (binding) => {
 }
 
 // 事件绑定
-let bindEvent = (el, binding) => {
+let bindEvent = (el: TargetEl, binding: Binding): void => {
   if (!validate(binding)) return
   // 监听事件
-  const triggerEvent = (e) => {
-    if (el.contains(e.target)) {
-      return false
+  const triggerEvent = (e: Event): void => {
+    if (e.target) {
+      if (el.contains(e.target as HTMLElement)) {
+        return
+      }
+      binding.value()
     }
-    binding.value()
   }
   el.__clickOutside__ = triggerEvent
   document.body.addEventListener('touchstart', el.__clickOutside__, true)
@@ -26,7 +37,7 @@ let bindEvent = (el, binding) => {
 }
 
 // 事件解绑
-let unBindEvent = (el) => {
+let unBindEvent = (el: TargetEl): void => {
   document.body.removeEventListener('touchstart', el.__clickOutside__, true)
   document.body.removeEventListener('click', el.__clickOutside__, true)
 }

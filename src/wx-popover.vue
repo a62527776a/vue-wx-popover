@@ -6,106 +6,111 @@
       a {{action.text}}
 </template>
 
-<script>
-export default {
-  name: 'wx-popover',
-  data () {
+<script lang="ts">
+import { Vue, Component, Prop } from 'vue-property-decorator'
+
+interface rect {
+  height: number
+  width: number
+  left: number
+  top: number
+}
+
+interface popoverRect {
+  x: number
+  y: number,
+  warpperX: number,
+  translateX: string
+}
+
+interface popoverPosition {
+  left: string
+  top: string
+}
+
+interface popoverWrapperPosition {
+  height: string
+  transform: string
+}
+
+@Component
+export default class WXPopover extends Vue {
+  @Prop(Array) actions: Array<any>
+  @Prop(Object) targetDom: Element
+  @Prop({
+    default: 0
+  }) showDelay!: number
+  @Prop({
+    default: -12
+  }) offsetX!: number
+
+  x:number = 0
+  warpperX:number = 0
+  y:number = 0
+  height:number = 36
+  translateX:string = '100%'
+  showTipTimer: number | null = null
+  removeTimer: number | null = null
+  remove: Function
+
+  $refs: {
+    'wx-popover-wrapper': Element
+  }
+
+  /**
+   * @method computedRect 根据目标DOM节点位置信息以及popover的DOM节点信息 计算popover最终需要呈现的屏幕中位置
+   * @return { popoverRect }
+   */
+  computedRect (targetDomRect: rect, popoverRect: rect): popoverRect {
+    let offsetHeight = (targetDomRect.height - popoverRect.height) / 2
     return {
-      x: 0,
-      warpperX: 0,
-      y: 0,
-      height: 36,
-      translateX: '100%',
-      showTipTimer: null,
-      removeTimer: null
+      x: targetDomRect.left - popoverRect.width + this.offsetX,
+      y: targetDomRect.top + offsetHeight,
+      warpperX: popoverRect.width,
+      translateX: '0%'
     }
-  },
-  props: {
-    actions: {
-      type: Array,
-      default: () => {
-        return ['']
-      },
-      required: true
-    },
-    targetDom: null,
-    showDelay: {
-      type: Number,
-      default: 0
-    },
-    offsetX: {
-      default: -12
+  }
+  /**
+   * @method showPopover showDelay ms之后展示Popover
+   * @return { Promise<Boolean> }
+   */
+  showPopover (): Promise<Boolean> {
+    return new Promise((resolve) => {
+      if (this.showTipTimer) resolve(false)
+      this.showTipTimer = window.setTimeout(() => {
+        let popoverRect = this.$refs['wx-popover-wrapper'].getBoundingClientRect()
+        let targetDomRect = this.targetDom.getBoundingClientRect()
+        Object.assign(this, this.computedRect(targetDomRect, popoverRect))
+        if (this.showTipTimer) clearTimeout(this.showTipTimer)
+        resolve(true)
+      }, this.showDelay)
+    })
+  }
+
+  clickoutside (): void {
+    this.translateX = '100%'
+    if (this.removeTimer) return
+    this.removeTimer = window.setTimeout(() => {
+      this.remove()
+      if (this.removeTimer) clearTimeout(this.removeTimer)
+    }, 300)
+  }
+
+  get computedPosition (): popoverPosition {
+    return {
+      left: this.x + 'px',
+      top: this.y + 'px'
     }
-  },
-  computed: {
-    computedPosition: function () {
-      return {
-        left: this.x + 'px',
-        top: this.y + 'px'
-      }
-    },
-    computedWrapperPosition: function () {
-      return {
-        height: this.height + 'px',
-        transform: `translateX(${this.translateX})`
-      }
+  }
+  get computedWrapperPosition (): popoverWrapperPosition {
+    return {
+      height: this.height + 'px',
+      transform: `translateX(${this.translateX})`
     }
-  },
-  methods: {
-    /**
-     * @method computedRect 根据目标DOM节点位置信息以及popover的DOM节点信息 计算popover最终需要呈现的屏幕中位置
-     * @return { Object } {
-     *    
-     * }
-     */
-    computedRect: function (targetDomRect, popoverRect) {
-      let offsetHeight = (targetDomRect.height - popoverRect.height) / 2
-      return {
-        x: targetDomRect.left - popoverRect.width + this.offsetX,
-        y: targetDomRect.top + offsetHeight,
-        warpperX: popoverRect.width,
-        translateX: '0%'
-      }
-    },
-    /**
-     * @method showPopover showDelay ms之后展示Popover
-     * @return { Promise<Boolean> }
-     */
-    showPopover: function () {
-      new Promise((resolve) => {
-        if (!this.isDOM(this.targetDom)) {
-          resolve(false)
-          throw new Error('dom属性必须为DOM节点')
-        }
-        if (this.showTipTimer) resolve(false)
-        this.showTipTimer = setTimeout(() => {
-          let popoverRect = this.$refs['wx-popover-wrapper'].getBoundingClientRect()
-          let targetDomRect = this.targetDom.getBoundingClientRect()
-          Object.assign(this, this.computedRect(targetDomRect, popoverRect))
-          clearTimeout(this.showTipTimer)
-          resolve(true)
-        }, this.showDelay)
-      })
-    },
-    clickoutside: function () {
-      this.translateX = '100%'
-      if (this.removeTimer) return
-      this.removeTimer = setTimeout(() => {
-        this.remove()
-        clearTimeout(this.removeTimer)
-      }, 300)
-    },
-    isDOM: function (target) {
-      if (typeof HTMLElement === 'object') {
-        return target instanceof HTMLElement
-      } else {
-        return target && typeof target === 'object' && target.nodeType === 1 && typeof target.nodeName === 'string';
-      }
-    }
-  },
+  }
+
   mounted () {
     this.showPopover()
-    console.log(this)
   }
 }
 </script>

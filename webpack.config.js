@@ -1,13 +1,17 @@
-var path = require('path')
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
 
 module.exports = {
-  mode: 'production',
-  entry: './src/index.js',
+  mode: 'development',
+  entry: './src/index.ts',
   output: {
-    path: path.resolve(__dirname, 'dist'),
-    filename: 'index.js',
-    libraryTarget: 'umd'
+    path: __dirname,
+    filename: 'index.js'
+  },
+  resolve: {
+    alias: {
+      vue$: 'vue/dist/vue.esm.js'
+    },
+    extensions: ['.ts', '.tsx', '.js']
   },
   module: {
     rules: [
@@ -45,6 +49,20 @@ module.exports = {
       {
         test: /\.js?$/,
         loader: 'babel-loader'
+      },
+      {
+        test: /\.tsx?$/,
+        exclude: /node_modules/,
+        use: [
+          'babel-loader',
+          {
+            loader: 'ts-loader',
+            options: {
+              appendTsSuffixTo: [/\.vue$/],
+              appendTsxSuffixTo: [/\.vue$/]
+            }
+          }
+        ]
       }
     ]
   },
