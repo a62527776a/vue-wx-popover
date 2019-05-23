@@ -4,14 +4,9 @@ module.exports = {
   mode: 'development',
   entry: './src/index.ts',
   output: {
-    path: __dirname,
-    filename: 'index.js'
-  },
-  resolve: {
-    alias: {
-      vue$: 'vue/dist/vue.esm.js'
-    },
-    extensions: ['.ts', '.tsx', '.js']
+    path: __dirname + '/dist',
+    filename: 'index.js',
+    libraryTarget: 'umd'
   },
   module: {
     rules: [

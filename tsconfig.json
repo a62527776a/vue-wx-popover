@@ -7,6 +7,10 @@
     ],
     "module": "es2015",
     "moduleResolution": "node",
+    "baseUrl": "./",
+    "paths": {
+      "@": ["src"]
+    },
     "experimentalDecorators": true,
     "strict": true,
     "noUnusedLocals": true,
@@ -16,7 +20,7 @@
     "jsxFactory": "h"
   },
   "include": [
-    "./src/*.ts"
+    "./src/*.ts", "popover.d.ts"
   ],
-  "compileOnSave": false
+  "compileOnSave": true
 }

@@ -41,7 +41,20 @@ module.exports = {
           }
         }
       ]
-    },]
+    }, {
+      test: /\.tsx?$/,
+      exclude: /node_modules/,
+      use: [
+        'babel-loader',
+        {
+          loader: 'ts-loader',
+          options: {
+            appendTsSuffixTo: [/\.vue$/],
+            appendTsxSuffixTo: [/\.vue$/]
+          }
+        }
+      ]
+    }]
   },
   devServer: {
     inline: true

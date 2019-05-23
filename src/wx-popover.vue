@@ -8,6 +8,7 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from 'vue-property-decorator'
+import { directive } from './click-outside.ts'
 
 interface rect {
   height: number
@@ -33,10 +34,14 @@ interface popoverWrapperPosition {
   transform: string
 }
 
-@Component
+@Component({
+  directives: {
+    'click-outside': directive
+  }
+})
 export default class WXPopover extends Vue {
   @Prop(Array) actions: Array<any>
-  @Prop(Object) targetDom: Element
+  @Prop(Element) targetDom: Element
   @Prop({
     default: 0
   }) showDelay!: number

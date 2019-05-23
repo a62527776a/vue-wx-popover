@@ -1,5 +1,5 @@
 import App from './App.vue'
-import WXPopover from '../src/index.js'
+import WXPopover from '../dist/index'
 import Vue from 'vue'
 
 Vue.use(WXPopover, {

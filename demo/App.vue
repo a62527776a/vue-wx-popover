@@ -69,7 +69,7 @@ export default {
   },
   methods: {
     handleTip: function (idx, event) {
-      let wxTip = this.$createWxPopover({
+      let wxTip = this.$createWXPopover({
         $props: {
           actions: this.actions,
           targetDom: event.target
