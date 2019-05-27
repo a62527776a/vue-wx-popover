@@ -20,7 +20,7 @@
     "jsxFactory": "h"
   },
   "include": [
-    "./src/*.ts", "popover.d.ts"
+    "./src/*.ts", "popover.d.ts", "test/unit/specs/index.spec.js"
   ],
   "compileOnSave": true
 }

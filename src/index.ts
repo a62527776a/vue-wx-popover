@@ -1,16 +1,16 @@
 import WXPopover from './wx-popover.vue'
 import CreateAPI from 'vue-create-api'
 
-interface action {
+export interface action {
   icon: string,
   text: string
 }
 
-interface propsOpt {
+export interface propsOpt {
   [actions: string]: Array<action>
 }
 
-interface propsDefaultOpt {
+export interface propsDefaultOpt {
   [actions: string]: {
     default: Array<action>
   }
